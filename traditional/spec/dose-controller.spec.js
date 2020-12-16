@@ -11,9 +11,14 @@ describe("Dose Controller", function () {
     console.log("Przed testem");
   });
 
-  function given({ pressure, medicine = "LowerPressure" }) {
+  function given({ pressure, medicine = "LowerPressure", whenDoseMedicineForFirstTime }) {
     medicinePump = {
-      dose: jest.fn(), //funckja, której wywołania będziemy sledzić
+      dose: whenDoseMedicineForFirstTime
+        ? jest
+            .fn()
+            .mockImplementationOnce(whenDoseMedicineForFirstTime)
+            .mockImplementationOnce(() => {})
+        : jest.fn(), //funckja, której wywołania będziemy sledzić
       getTimeSinceLastDoseInMinutes: jest.fn().mockReturnValueOnce(10).mockReturnValueOnce(1),
     };
     // getTimeSinceLastDoseInMinutes: jest.fn(medicine).mockReturnValueOnce(10).mockReturnValueOnce(1),
@@ -37,7 +42,7 @@ describe("Dose Controller", function () {
     doseController.checkHealthAndApplyMedicine();
 
     //then
-    dosedMedicine({
+    sprobowanoPodacLek({
       name: "RaisePressure",
       count: 1,
     });
@@ -50,7 +55,7 @@ describe("Dose Controller", function () {
 
     doseController.checkHealthAndApplyMedicine();
 
-    dosedMedicine({
+    sprobowanoPodacLek({
       name: "RaisePressure",
       count: 2,
     });
@@ -63,32 +68,26 @@ describe("Dose Controller", function () {
 
     doseController.checkHealthAndApplyMedicine();
 
-    dosedMedicine({
+    sprobowanoPodacLek({
       name: "LowerPressure",
       count: 1,
     });
   });
 
-  // ! Jesli podano lek i po tym czas od podania leku wynosi Więcej niż 2 minuty to ponów próbe
-
-  it("Gdy pompa nie zadziała 1 raz, ponów próbę.", () => {
+  it("Gdy pompa nie zadziała 1 raz (rzuci Error), ponów próbę.", () => {
     given({
       pressure: 160,
-      medicine: "LowerPressure",
+      whenDoseMedicineForFirstTime: () => {
+        throw new Error("Za szybki ruch ręką!");
+      },
     });
 
     doseController.checkHealthAndApplyMedicine();
 
-    dosedMedicine({
-      name: "LowerPressure",
-      count: 1,
-    });
-    expect(medicinePump.getTimeSinceLastDoseInMinutes.mock.results.map((it) => it.value)).toEqual([10, 1]);
-
-    expect(medicinePump.getTimeSinceLastDoseInMinutes.mock.calls.length).toBe(2);
+    expect(medicinePump.dose.mock.calls.length).toBe(2);
   });
 
-  function dosedMedicine({ name, count }) {
+  function sprobowanoPodacLek({ name, count }) {
     expect(medicinePump.dose).toBeCalledWith({
       name,
       count,

@@ -6,24 +6,28 @@ function DoseController(healthMonitor, medicinePump, alertService) {
   };
 
   function checkHealthAndApplyMedicine() {
-    const pressure = healthMonitor.getSystolicBloodPressure();
-    if (pressure < 60) {
-      medicinePump.dose({
-        name: "RaisePressure",
-        count: 2,
-      });
-    } else if (pressure > 150) {
-      medicinePump.dose({
-        name: "LowerPressure",
-        count: 1,
-      });
-    } else {
-      medicinePump.dose({
-        name: "RaisePressure",
-        count: 1,
-      });
+    try {
+      const pressure = healthMonitor.getSystolicBloodPressure();
+      if (pressure < 60) {
+        medicinePump.dose({
+          name: "RaisePressure",
+          count: 2,
+        });
+      } else if (pressure > 150) {
+        medicinePump.dose({
+          name: "LowerPressure",
+          count: 1,
+        });
+      } else {
+        medicinePump.dose({
+          name: "RaisePressure",
+          count: 1,
+        });
+      }
+    } catch (e) {
+      // checkIsGivenDosedMedicine();
+      checkHealthAndApplyMedicine();
     }
-    checkIsGivenDosedMedicine();
   }
 
   function checkIsGivenDosedMedicine() {
