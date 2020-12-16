@@ -84,6 +84,8 @@ describe("Dose Controller", function () {
       count: 1,
     });
     expect(medicinePump.getTimeSinceLastDoseInMinutes.mock.results.map((it) => it.value)).toEqual([10, 1]);
+
+    expect(medicinePump.getTimeSinceLastDoseInMinutes.mock.calls.length).toBe(2);
   });
 
   function dosedMedicine({ name, count }) {
