@@ -1,0 +1,10 @@
+{
+  "name": "medicine-dose-kata-javascript",
+  "version": "0.0.1",
+  "scripts": {
+    "test": "jest --coverage"
+  },
+  "devDependencies": {
+    "jest": "26.0.1"
+  }
+}
