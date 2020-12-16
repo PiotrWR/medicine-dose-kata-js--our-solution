@@ -19,7 +19,7 @@ describe("Dose Controller", function () {
             .mockImplementationOnce(whenDoseMedicineForFirstTime)
             .mockImplementationOnce(() => {})
         : jest.fn(), //funckja, której wywołania będziemy sledzić
-      getTimeSinceLastDoseInMinutes: jest.fn().mockReturnValueOnce(10).mockReturnValueOnce(1),
+      // ! getTimeSinceLastDoseInMinutes: jest.fn().mockReturnValueOnce(10).mockReturnValueOnce(1),
     };
     // getTimeSinceLastDoseInMinutes: jest.fn(medicine).mockReturnValueOnce(10).mockReturnValueOnce(1),
     const healthMonitor = {
@@ -84,7 +84,11 @@ describe("Dose Controller", function () {
 
     doseController.checkHealthAndApplyMedicine();
 
-    expect(medicinePump.dose.mock.calls.length).toBe(2);
+    const expectedMedicine = {
+      name: "LowerPressure",
+      count: 1,
+    };
+    expect(medicinePump.dose.mock.calls.map((call) => call[0])).toEqual([expectedMedicine, expectedMedicine]);
   });
 
   function sprobowanoPodacLek({ name, count }) {

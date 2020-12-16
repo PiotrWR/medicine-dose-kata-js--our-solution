@@ -29,11 +29,5 @@ function DoseController(healthMonitor, medicinePump, alertService) {
       checkHealthAndApplyMedicine();
     }
   }
-
-  function checkIsGivenDosedMedicine() {
-    if (medicinePump.getTimeSinceLastDoseInMinutes("LowerPressure") > 2) {
-      checkHealthAndApplyMedicine();
-    }
-  }
 }
 module.exports = DoseController;
