@@ -7,12 +7,14 @@ describe("Dose Controller", function () {
   let medicinePump;
   let doseController;
 
-  beforeEach(function () {});
+  beforeEach(function () {
+    console.log("Przed testem");
+  });
 
   function given({ pressure, medicine = "LowerPressure" }) {
     medicinePump = {
       dose: jest.fn(), //funckja, której wywołania będziemy sledzić
-      getTimeSinceLastDoseInMinutes: jest.fn(medicine).mockReturnValueOnce(10).mockReturnValueOnce(1),
+      getTimeSinceLastDoseInMinutes: jest.fn().mockReturnValueOnce(10).mockReturnValueOnce(1),
     };
     // getTimeSinceLastDoseInMinutes: jest.fn(medicine).mockReturnValueOnce(10).mockReturnValueOnce(1),
     const healthMonitor = {
@@ -67,6 +69,8 @@ describe("Dose Controller", function () {
     });
   });
 
+  // ! Jesli podano lek i po tym czas od podania leku wynosi Więcej niż 2 minuty to ponów próbe
+
   it("Gdy pompa nie zadziała 1 raz, ponów próbę.", () => {
     given({
       pressure: 160,
@@ -79,7 +83,7 @@ describe("Dose Controller", function () {
       name: "LowerPressure",
       count: 1,
     });
-    expect(medicinePump.getTimeSinceLastDoseInMinutes).toBeCalledWith(1);
+    expect(medicinePump.getTimeSinceLastDoseInMinutes.mock.results.map((it) => it.value)).toEqual([10, 1]);
   });
 
   function dosedMedicine({ name, count }) {
