@@ -11,7 +11,12 @@ describe("Dose Controller", function () {
     console.log("Przed testem");
   });
 
-  function given({ pressure, medicine = "LowerPressure", whenDoseMedicineForFirstTime }) {
+  function given({
+    pressure,
+    whenDoseMedicineForFirstTime,
+    medicine = "LowerPressure",
+    timeSinceLastDoseInMinutes = 31,
+  }) {
     medicinePump = {
       dose: whenDoseMedicineForFirstTime
         ? jest
@@ -19,9 +24,10 @@ describe("Dose Controller", function () {
             .mockImplementationOnce(whenDoseMedicineForFirstTime)
             .mockImplementationOnce(() => {})
         : jest.fn(), //funckja, której wywołania będziemy sledzić
-      // ! getTimeSinceLastDoseInMinutes: jest.fn().mockReturnValueOnce(10).mockReturnValueOnce(1),
+      getTimeSinceLastDoseInMinutes: function (medicine) {
+        return timeSinceLastDoseInMinutes;
+      },
     };
-    // getTimeSinceLastDoseInMinutes: jest.fn(medicine).mockReturnValueOnce(10).mockReturnValueOnce(1),
     const healthMonitor = {
       getSystolicBloodPressure: function () {
         return pressure;
@@ -88,7 +94,25 @@ describe("Dose Controller", function () {
       name: "LowerPressure",
       count: 1,
     };
-    expect(medicinePump.dose.mock.calls.map((call) => call[0])).toEqual([expectedMedicine, expectedMedicine]);
+    expect(medicinePump.dose.mock.calls.map((call) => call[0])).toEqual([
+      expectedMedicine,
+      expectedMedicine,
+    ]);
+  });
+
+  it("Nie podawaj leku, jeśli od ostatniej dawki upłynęło 30 minut lub mniej.", () => {
+    given({
+      pressure: 160,
+      medicine: "LowerPressure",
+      timeSinceLastDoseInMinutes: 30,
+    });
+
+    doseController.checkHealthAndApplyMedicine();
+
+    expect(medicinePump.dose).not.toBeCalledWith({
+      name: "LowerPressure",
+      count: 1,
+    });
   });
 
   function sprobowanoPodacLek({ name, count }) {
