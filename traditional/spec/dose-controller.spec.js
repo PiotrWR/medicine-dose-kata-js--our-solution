@@ -11,12 +11,7 @@ describe("Dose Controller", function () {
     console.log("Przed testem");
   });
 
-  function given({
-    pressure,
-    whenDoseMedicineForFirstTime,
-    medicine = "LowerPressure",
-    timeSinceLastDoseInMinutes = 31,
-  }) {
+  function given({ pressure, whenDoseMedicineForFirstTime, medicine = "LowerPressure", timeSinceLastDoseInMinutes = 31 }) {
     medicinePump = {
       dose: whenDoseMedicineForFirstTime
         ? jest
@@ -94,16 +89,12 @@ describe("Dose Controller", function () {
       name: "LowerPressure",
       count: 1,
     };
-    expect(medicinePump.dose.mock.calls.map((call) => call[0])).toEqual([
-      expectedMedicine,
-      expectedMedicine,
-    ]);
+    expect(medicinePump.dose.mock.calls.map((call) => call[0])).toEqual([expectedMedicine, expectedMedicine]);
   });
 
   it("Nie podawaj leku, jeśli od ostatniej dawki upłynęło 30 minut lub mniej.", () => {
     given({
       pressure: 160,
-      medicine: "LowerPressure",
       timeSinceLastDoseInMinutes: 30,
     });
 
