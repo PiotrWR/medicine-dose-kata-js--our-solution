@@ -6,9 +6,15 @@ function DoseController(healthMonitor, medicinePump, alertService) {
   };
 
   function checkHealthAndApplyMedicine() {
+    const pressure = healthMonitor.getSystolicBloodPressure();
     try {
-      if (medicinePump.getTimeSinceLastDoseInMinutes() > 30) {
-        const pressure = healthMonitor.getSystolicBloodPressure();
+      if (pressure < 55) {
+        alertService.notifyDoctor();
+        medicinePump.dose({
+          name: "RaisePressure",
+          count: 3,
+        });
+      } else if (medicinePump.getTimeSinceLastDoseInMinutes() > 30) {
         if (pressure < 60) {
           medicinePump.dose({
             name: "RaisePressure",
