@@ -6,6 +6,7 @@ const DoseController = require("../src/dose-controller");
 describe("Dose Controller", function () {
   let medicinePump;
   let doseController;
+  let alertService;
 
   beforeEach(function () {
     console.log("Przed testem");
@@ -28,7 +29,9 @@ describe("Dose Controller", function () {
         return pressure;
       },
     };
-    const alertService = AlertService();
+    alertService = {
+      notifyDoctor: jest.fn(),
+    };
 
     doseController = DoseController(healthMonitor, medicinePump, alertService);
   }
@@ -103,6 +106,23 @@ describe("Dose Controller", function () {
     expect(medicinePump.dose).not.toBeCalledWith({
       name: "LowerPressure",
       count: 1,
+    });
+  });
+
+  it("Gdy ciśnienie spadnie poniżej 55, najpierw wyślij alarm do lekarza, następnie podaj 3 dawki leku podnoszącego ciśnienie", () => {
+    given({
+      pressure: 50,
+      timeSinceLastDoseInMinutes: 30,
+    });
+
+    doseController.checkHealthAndApplyMedicine();
+
+    // expect(alertService.notifyDoctor.mock.calls.length).toBe(1);
+    expect(alertService.notifyDoctor).toBeCalled();
+
+    expect(medicinePump.dose).toBeCalledWith({
+      name: "RaisePressure",
+      count: 3,
     });
   });
 
